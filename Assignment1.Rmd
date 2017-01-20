@@ -1,0 +1,64 @@
+---
+title: "Week 2 Assignment"  
+author: "Ahmed M. Kamel"  
+output: html_document
+---
+
+These are the answers for the assignment needed to complete week 2.
+
+###loading and processing data 
+
+**Steps include**:  
+1- *Setting working directory*  
+2- *Converting dates using `as.Date()`*
+
+```{r, echo=TRUE}
+setwd("c:/users/ahmed/desktop")
+df<- read.csv("activity.csv", na.strings="NA", header = T)
+df$date<- as.Date(df$date, format = "%Y-%m-%d")
+```
+
+###What is mean total number of steps taken per day?
+1- **calculate the total number of steps taken per day**
+
+```{r}
+dailydata<- tapply(df$steps, df$date, sum)
+print(dailydata)
+
+```
+
+2- **Make a histogram of the total number of steps taken each day**
+
+For this purpose, we need to calculate the total number of steps per day.  
+A new variable called `dailydata` was computed for that purpose.
+```{r Histogram, fig.height=4, fig.width=5}
+hist(dailydata, 10, xlab="total number of steps per day", main = "Histogram")
+```
+
+
+3- **Mean and median steps per day**
+```{r, echo=TRUE}
+mean(dailydata, na.rm=T)
+median(dailydata, na.rm=T)
+```
+
+###What is the average daily activity pattern? 
+1-**Time series plot.**  
+
+*I'll be using ggplot2 to construct this time series plot.  
+*I'll calculate mean steps across intervals averaged across all days using `tapply()` after converting interval to a factor using `as.factor()`.
+```{r, fig.width=5, fig.height=4}
+library(ggplot2)
+aggdf<- aggregate(df, list(as.factor(df$interval)), mean, na.rm=TRUE)
+ggplot(aes(interval, steps), data= aggdf)+geom_line()+theme_bw()+
+        labs(title="Line plot",subtitle="Interval (secs) vs. Steps")+xlab("Interval(secs)")+ylab("Steps")
+```  
+
+2-**5-mins interval with max. steps.**  
+```{r}
+x= aggdf$interval[which.max(aggdf$steps)]
+```
+
+The interval with max. number of steps is **`r x`**  
+
+###Imputing missing values
